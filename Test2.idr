@@ -5,20 +5,13 @@ import Data.List
 import Data.Vect
 import Data.Fin
 
-data Some : (cls : Type -> Type) -> Type where
-  MkSome : cls a => a -> Some cls
-
-HList : (cls : Type -> Type) -> Type
-HList cls = List (Some cls)
+import General
 
 tt1 : HList Num
 tt1 = [MkSome 1, MkSome 2]
 
 f1 : Some Num -> Some Num
 f1 (MkSome x) = MkSome (x*x)
-
-tt2 : HList Num
-tt2 = map f1 tt1
 
 data MyData = C1 | C2 Int Int
 
@@ -42,25 +35,10 @@ insert x (y :: ys) =
      else let (k ** r) = insert x ys
           in (S k ** (y :: r))
 
-class TryShow a where
-  tryShow : a -> Maybe String
+data Pattern : Number -> (t : Type) -> Type where
+  Fixed : Eq t => t -> Pattern One t
+  Var : String -> Pattern One t
+  VarSeq : String -> Pattern Many t
 
-instance TryShow Int where
-  tryShow x = Just $ show x
-
-instance TryShow (a -> b) where
-  tryShow _ = Nothing
-
-data Expr : Type where
-  Val : Int -> Expr
-  Func : (Int -> Int) -> Expr
-  App : Expr -> Expr -> Expr
-
-instance TryShow Expr where
-  tryShow (Val x) = Just $ show x
-  tryShow (Func _) = Nothing
-  tryShow (App f x) = do
-    sf <- tryShow f
-    sx <- tryShow x
-    return $ sf ++ " " ++ sx
+matchList : Eq t => List (Pattern n t) -> List (String, t)
 

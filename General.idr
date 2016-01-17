@@ -119,27 +119,33 @@ isEqElem x (y :: ys) =
                       Just eq => Just $ There eq
 
 data Number : Type where
+  Zero : Number
   One : Number
   Many : Number
-  (+) : Number -> Number -> Number
+  (:+) : Number -> Number -> Number
+
+infixr 8 :+
 
 instance Show Number where
+  show Zero = "0"
   show One = "1"
   show Many = "N"
-  show (x + y) = show x ++ " + " ++ show y
+  show (x :+ y) = show x ++ " + " ++ show y
 
 data Sequence : Number -> Type -> Type where
-  Single : n -> Sequence One n
-  Several : n -> Sequence Many n
-  (::) : Sequence n t -> Sequence m t -> Sequence (n+m) t
+  Nil : Sequence Zero t
+  Single : t -> Sequence One t
+  Several : t -> Sequence Many t
+  (::) : Sequence n t -> Sequence m t -> Sequence (n :+ m) t
 
 instance Show t => Show (Sequence n t) where
+  show Nil = "[]"
   show (Single x) = show x
   show (Several x) = show x
   show (x :: xs) = show x ++ " :: " ++ show xs
 
--- sq1 : Sequence String
--- sq1 = One "x" :: Several "xs" :: One "_"
+sq1 : Sequence (One :+ Many :+ One :+ Zero) String
+sq1 = [Single "x", Several "xs", Single "_"]
 
 ft1 : FTuple Maybe [Int, String]
 ft1 = [Just 1, Just "2"]

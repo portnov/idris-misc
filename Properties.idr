@@ -14,7 +14,6 @@ import Expressions
 
 exProperties : Expression t -> List Property
 exProperties (Variable sym) = symbolProps sym
-exProperties (VarSeq sym) = symbolProps sym
 exProperties (Apply (Variable f) (EList xs)) with (inheritance f)
   | Inherit condition what =
       filter toInherit props

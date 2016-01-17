@@ -17,8 +17,8 @@ import Facts
 positive : Property
 positive = symbol "positive" ()
 
-plusS : Symbol $ BinOp Nat
-plusS = record {inheritance = strictOnly [positive]} $ infixs "+" $ BinOp Nat
+plusS : Symbol $ MultiOp Nat
+plusS = record {inheritance = strictOnly [positive]} $ infixs "+" $ MultiOp Nat
 
 -- pt1 : List (Expression (Pattern Nat))
 -- pt1 = [VarSeq (symbol "vs"), variable "v"]
@@ -54,10 +54,10 @@ y0 : Expression Nat
 y0 = variable "y" Nat
 
 ypos : Fact
-ypos = Apply (Variable greater) $ EList [y0, Const 0]
+ypos = Apply (Apply (Variable greater) $ y0) (Const 0)
 
 xGtY : Fact
-xGtY = the (Expression Bool) $ Apply (Variable greater) $ EList [x0, y0]
+xGtY = the (Expression Bool) $ Apply (Apply (Variable greater) x0) y0
 
 factsDb : Facts
 factsDb = [ypos, xGtY]
@@ -76,11 +76,11 @@ test1 = do
          let (_ ** args) = operands xPlusY
          printLn $ args
 
-sqrt : Expression (Tuple [Double] -> Double)
-sqrt = variable "sqrt" (Tuple [Double] -> Double)
+sqrt : Expression (Double -> Double)
+sqrt = variable "sqrt" (Double -> Double)
  
-sqr : Expression (Tuple [Double] -> Double)
-sqr = Variable $ postfix "^2" (Tuple [Double] -> Double)
+sqr : Expression (Double -> Double)
+sqr = Variable $ postfix "^2" (Double -> Double)
  
 two : Expression Double
 two = 2
@@ -89,7 +89,7 @@ zz : Expression Double
 zz = Variable $ symbol "z" Double `withProp` positive
 
 cancelSqrt : Expression Double -> (t ** Expression t)
-cancelSqrt ex@(Apply (Variable s1) (EList [Apply (Variable s2) (EList [x])])) = 
+cancelSqrt ex@(Apply (Variable s1) (Apply (Variable s2) x)) = 
   if symbolName s1 == "sqrt" && symbolName s2 == "^2"
      then case checkHas positive x of
                Nothing => (Double ** ex)
